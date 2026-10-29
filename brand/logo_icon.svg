@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    Newline 会议室智能屏 · 图标版 Logo（AI 生成占位源文件）
+    主题色：白 #FFFFFF + 紫 #7C3AED（与 Signage Pro 白/紫主题一致，紫色值待核对后全局替换）
+    概念：紫色屏幕底板 + 白色显示器 + 屏内日程条 = "日历驱动的会议屏"
+  -->
+  <!-- 紫色圆角底板（品牌主形） -->
+  <rect width="512" height="512" rx="112" fill="#7C3AED"/>
+  <!-- 白色显示器屏幕 -->
+  <rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/>
+  <!-- 显示器支架 + 底座 -->
+  <rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/>
+  <rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/>
+  <!-- 屏内：日历标记（紫） -->
+  <rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/>
+  <!-- 屏内：日程条 3 条（深→浅，表示一天多场会议自动排布） -->
+  <rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/>
+  <rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/>
+  <rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/>
+</svg>

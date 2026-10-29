@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设备待绑定 · Newline MeetCast</title>
+<link rel="icon" href="../assets/brand/logo_icon.svg">
+<link rel="stylesheet" href="../assets/css/meetcast.css">
+</head>
+<body>
+<!--
+  S6 · 设备待绑定屏（开机第一屏，A1 绑定配合）
+  链路：设备开机 → 展示本机 device_id（大字，供人工对照）→ 上报注册
+        管理员手机扫门口二维码（只含 room_id）→ 后台「待绑定设备」选中本机 → 确认绑定
+  query 覆盖：?device_id=SH-A3-01-01
+-->
+<div class="display-root">
+  <div class="boot-page">
+    <div class="bt-top">
+      <div class="bt-brand">
+        <div class="logo-sq"><img src="../assets/brand/logo_icon.svg" alt="MeetCast"></div>
+        Newline MeetCast
+      </div>
+      <div class="bt-step-pill">Step 1 · 设备注册</div>
+    </div>
+
+    <div class="bt-body">
+      <div class="bt-label">本机设备码 · Device ID</div>
+      <div class="bt-code" id="bt-code">SH-A3-01-01</div>
+      <div class="bt-sub">上报编号 <code id="bt-name">device_sh_003</code> · 固件 <span id="bt-firmware">Android 15</span> · Agent <span id="bt-agent">v1.0.0</span></div>
+      <div class="bt-state"><i></i>设备已上线，等待管理员绑定</div>
+
+      <div class="bt-flow">
+        <div class="cell">
+          <div class="n">01</div>
+          <p>管理员手机扫<strong>门口二维码</strong>（只含 room_id）</p>
+        </div>
+        <div class="cell">
+          <div class="n">02</div>
+          <p>后台「待绑定设备」列表选中上方<strong>设备码</strong></p>
+        </div>
+        <div class="cell">
+          <div class="n">03</div>
+          <p>确认绑定，本机进入该会议室调度范围</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bt-foot">
+      <div>屏幕将保持本页直到绑定完成</div>
+      <div>无需在设备上做任何操作</div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/mock.js"></script>
+<script src="../assets/js/display.js"></script>
+<script>initBootPage();</script>
+</body>
+</html>

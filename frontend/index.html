@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 · Newline MeetCast</title>
+<link rel="icon" href="assets/brand/logo_icon.svg">
+<link rel="stylesheet" href="assets/css/meetcast.css">
+</head>
+<body>
+<!--
+  管理后台 SPA（UI 稿 S3 设备总览 / S4 素材双轨 / S7 扫码确认弹层 / S9 日历源配置）
+  路由：#/overview  #/devices  #/rooms  #/materials  #/calendar  #/commands
+  接口：Newline_MeetCast_API_Spec.md §三/四/六/七（管理端 11 个，JWT）
+  Mock：assets/js/mock.js（USE_MOCK=true 时离线可演示）
+-->
+<div class="admin-shell">
+  <aside class="side">
+    <div class="brand-mini">
+      <div class="sq"><img src="assets/brand/logo_icon.svg" alt="MeetCast"></div>
+      <strong>MeetCast</strong>
+    </div>
+    <button class="nav-item" data-route="overview"><div class="ic"></div>总览</button>
+    <button class="nav-item" data-route="devices"><div class="ic"></div>设备</button>
+    <button class="nav-item" data-route="rooms"><div class="ic"></div>会议室</button>
+    <button class="nav-item" data-route="materials"><div class="ic"></div>素材</button>
+    <button class="nav-item" data-route="calendar"><div class="ic"></div>日历源</button>
+    <button class="nav-item" data-route="commands"><div class="ic"></div>审计日志</button>
+    <div class="spacer"></div>
+    <div class="user" id="user-chip" onclick="logout()" title="点击退出登录">
+      <div class="av" id="user-av">?</div>
+      <div id="user-name">未登录</div>
+    </div>
+  </aside>
+
+  <main class="main" id="view">
+    <div class="loading">加载中…</div>
+  </main>
+</div>
+
+<!-- S7 · 扫码确认 / 绑定弹层 -->
+<div class="modal-overlay" id="modal" hidden>
+  <div class="modal-card" id="modal-card"></div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="assets/js/mock.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

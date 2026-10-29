@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newline MeetCast · 核心界面设计 V1.1 · 定稿</title>
+<style>
+/* ============================================================
+   Newline MeetCast UI V1 — Black / White / Purple
+   Style reference: Apple product pages (typography, rhythm)
+   Tokens follow PRD brand: #7C3AED / #4C1D95 / #FFFFFF
+   ============================================================ */
+:root{
+  --ink:#1D1D1F;          /* Apple near-black */
+  --ink-2:#424245;
+  --gray:#6E6E73;
+  --gray-2:#86868B;
+  --hair:rgba(0,0,0,.08);
+  --paper:#FFFFFF;
+  --mist:#F5F5F7;         /* Apple light gray */
+  --purple:#7C3AED;
+  --purple-deep:#4C1D95;
+  --purple-soft:#EDE9FE;
+  --purple-glow:rgba(124,58,237,.38);
+  --radius-l:28px;
+  --radius-m:18px;
+  --radius-s:12px;
+  --shadow-soft:0 24px 60px -20px rgba(29,29,31,.14);
+  --shadow-deep:0 40px 90px -25px rgba(29,29,31,.32);
+  --font:-apple-system,"SF Pro Display","SF Pro Text","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:var(--purple);color:#fff;}
+
+/* ---------- page hero ---------- */
+.hero{
+  background:var(--ink);
+  color:#F5F5F7;
+  padding:clamp(64px,9vw,120px) 24px clamp(72px,10vw,128px);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;inset:-40% -20% auto;
+  height:120%;
+  background:radial-gradient(60% 55% at 50% 0%,rgba(124,58,237,.34),transparent 70%);
+  pointer-events:none;
+}
+.hero .kicker{
+  font-size:14px;letter-spacing:.22em;text-transform:uppercase;
+  color:#A78BFA;font-weight:600;margin-bottom:22px;position:relative;
+}
+.hero h1{
+  font-size:clamp(44px,7.4vw,88px);
+  font-weight:700;letter-spacing:-.035em;line-height:1.02;
+  position:relative;
+}
+.hero h1 em{font-style:normal;color:#C4B5FD;}
+.hero .sub{
+  margin:26px auto 0;max-width:640px;position:relative;
+  font-size:clamp(17px,2vw,21px);line-height:1.6;color:rgba(245,245,247,.62);
+  letter-spacing:-.01em;
+}
+.chips{margin-top:38px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;}
+.chip{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:rgba(245,245,247,.85);
+  padding:9px 18px;border-radius:999px;font-size:13.5px;letter-spacing:.02em;
+  backdrop-filter:blur(8px);
+}
+.chip b{color:#C4B5FD;font-weight:600;}
+
+/* ---------- design language strip ---------- */
+.tokens{
+  background:var(--mist);
+  padding:clamp(48px,6vw,72px) 24px;
+  border-bottom:1px solid var(--hair);
+}
+.tokens-inner{max-width:1120px;margin:0 auto;}
+.tokens h2{font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);font-weight:600;margin-bottom:28px;}
+.swatch-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
+.swatch{
+  border-radius:var(--radius-m);padding:20px 18px 18px;
+  min-height:132px;display:flex;flex-direction:column;justify-content:flex-end;
+  box-shadow:var(--shadow-soft);
+}
+.swatch .name{font-size:13px;font-weight:600;letter-spacing:.02em;}
+.swatch .hex{font-size:12px;opacity:.72;margin-top:3px;font-variant-numeric:tabular-nums;}
+.sw-ink{background:var(--ink);color:#fff;}
+.sw-purple{background:var(--purple);color:#fff;}
+.sw-deep{background:var(--purple-deep);color:#fff;}
+.sw-paper{background:var(--paper);color:var(--ink);border:1px solid var(--hair);}
+.sw-mist{background:#EDEDF0;color:var(--ink);}
+
+/* ---------- section frame ---------- */
+.section{
+  padding:clamp(72px,9vw,120px) 24px;
+  max-width:1240px;margin:0 auto;
+}
+.section-head{max-width:760px;margin-bottom:clamp(36px,5vw,56px);}
+.section-head .no{
+  font-size:13px;font-weight:700;letter-spacing:.2em;color:var(--purple);
+  margin-bottom:14px;
+}
+.section-head h2{
+  font-size:clamp(32px,4.6vw,52px);letter-spacing:-.03em;line-height:1.08;font-weight:700;
+}
+.section-head p{
+  margin-top:18px;font-size:17px;line-height:1.72;color:var(--gray);letter-spacing:-.01em;
+}
+.section-head .tags{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;}
+.tag{
+  font-size:12px;font-weight:600;letter-spacing:.04em;
+  color:var(--purple-deep);background:var(--purple-soft);
+  padding:6px 12px;border-radius:999px;
+}
+.tag.ghost{background:transparent;border:1px solid var(--hair);color:var(--gray);}
+
+/* ---------- device frame (16:9 room display) ---------- */
+.device{
+  background:#0A0A0C;
+  border-radius:22px;
+  padding:14px;
+  box-shadow:var(--shadow-deep);
+}
+.device-screen{
+  aspect-ratio:16/9;border-radius:12px;overflow:hidden;position:relative;
+}
+.device-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 8px 2px;color:rgba(255,255,255,.38);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+}
+
+/* ---------- browser frame (admin web) ---------- */
+.browser{
+  background:var(--paper);
+  border-radius:18px;overflow:hidden;
+  border:1px solid var(--hair);
+  box-shadow:var(--shadow-deep);
+}
+.browser-bar{
+  background:#EDEDF0;padding:13px 18px;display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid var(--hair);
+}
+.dots{display:flex;gap:7px;}
+.dots i{width:11px;height:11px;border-radius:50%;display:block;}
+.dots i:nth-child(1){background:#FF5F57;}
+.dots i:nth-child(2){background:#FEBC2E;}
+.dots i:nth-child(3){background:#28C840;}
+.url{
+  flex:1;background:#fff;border-radius:8px;padding:7px 14px;
+  font-size:12.5px;color:var(--gray);letter-spacing:.01em;
+  border:1px solid var(--hair);
+}
+
+/* ============================================================
+   S1 · 会议页（设备大屏 · 深色紫雾）
+   ============================================================ */
+.meeting-page{
+  height:100%;
+  background:
+    radial-gradient(90% 80% at 85% -10%,rgba(124,58,237,.32),transparent 55%),
+    radial-gradient(70% 70% at 0% 110%,rgba(76,29,149,.4),transparent 60%),
+    linear-gradient(160deg,#14121C 0%,#1B1530 55%,#221A3D 100%);
+  color:#fff;
+  display:flex;flex-direction:column;
+  padding:3.4% 4%;
+  position:relative;
+}
+.mp-top{display:flex;justify-content:space-between;align-items:baseline;}
+.mp-room{font-size:clamp(11px,1.25vw,15px);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600;}
+.mp-clock{font-size:clamp(12px,1.3vw,16px);color:rgba(255,255,255,.72);font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.mp-body{flex:1;display:grid;grid-template-columns:1.35fr .95fr;gap:3%;align-items:center;}
+.mp-live{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:clamp(10px,1.05vw,13px);letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:#C4B5FD;margin-bottom:2.6%;
+}
+.mp-live::before{
+  content:"";width:7px;height:7px;border-radius:50%;background:#A78BFA;
+  box-shadow:0 0 0 0 rgba(167,139,250,.55);
+  animation:pulse 2.4s ease-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(167,139,250,.5);}
+  70%{box-shadow:0 0 0 9px rgba(167,139,250,0);}
+  100%{box-shadow:0 0 0 0 rgba(167,139,250,0);}
+}
+.mp-title{
+  font-size:clamp(28px,4.3vw,58px);font-weight:700;letter-spacing:-.035em;line-height:1.05;
+}
+.mp-meta{
+  margin-top:2.4%;font-size:clamp(12px,1.5vw,19px);color:rgba(255,255,255,.62);
+  letter-spacing:.01em;display:flex;gap:1.4em;flex-wrap:wrap;
+}
+.mp-meta b{color:rgba(255,255,255,.92);font-weight:600;}
+.mp-people{margin-top:5%;display:flex;align-items:center;gap:.7em;}
+.avatar{
+  width:clamp(26px,2.9vw,38px);height:clamp(26px,2.9vw,38px);border-radius:50%;
+  background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(10px,1.05vw,13px);font-weight:600;color:rgba(255,255,255,.85);
+}
+.avatar.more{background:rgba(124,58,237,.4);border-color:rgba(196,181,253,.5);}
+.mp-agenda{
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:clamp(12px,1.5vw,20px);
+  padding:7% 8%;
+  backdrop-filter:blur(14px);
+  height:100%;display:flex;flex-direction:column;
+}
+.mp-agenda .label{
+  font-size:clamp(9px,1vw,12px);letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(196,181,253,.9);font-weight:700;margin-bottom:6%;
+}
+.mp-agenda ul{list-style:none;display:flex;flex-direction:column;gap:clamp(8px,1.3vw,17px);}
+.mp-agenda li{
+  font-size:clamp(11px,1.28vw,16px);color:rgba(255,255,255,.8);
+  display:flex;gap:.85em;line-height:1.45;letter-spacing:-.005em;
+}
+.mp-agenda li span{
+  color:#C4B5FD;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;
+}
+.mp-agenda .asset{
+  margin-top:auto;padding-top:6%;
+  border-top:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;gap:.8em;
+}
+.asset-thumb{
+  width:clamp(34px,3.6vw,48px);height:clamp(26px,2.7vw,36px);border-radius:7px;
+  background:linear-gradient(135deg,#7C3AED,#4C1D95);
+  flex-shrink:0;
+}
+.asset-name{font-size:clamp(9.5px,1.05vw,13px);color:rgba(255,255,255,.72);line-height:1.4;}
+.asset-name small{display:block;color:rgba(255,255,255,.4);font-size:.85em;margin-top:2px;}
+.mp-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:2.2%;border-top:1px solid rgba(255,255,255,.1);
+}
+.mp-next{font-size:clamp(10px,1.15vw,14px);color:rgba(255,255,255,.55);}
+.mp-next b{color:rgba(255,255,255,.88);font-weight:600;}
+.mp-brand{display:flex;align-items:center;gap:.65em;font-size:clamp(10px,1.1vw,14px);color:rgba(255,255,255,.6);letter-spacing:.04em;font-weight:600;}
+.mp-brand .logo-sq{width:clamp(18px,1.9vw,25px);height:clamp(18px,1.9vw,25px);border-radius:6px;overflow:hidden;}
+.mp-brand .logo-sq svg{width:100%;height:100%;display:block;}
+
+/* ============================================================
+   S2 · 标牌页（设备大屏 · 亮色）
+   ============================================================ */
+.sign-page{
+  height:100%;
+  background:linear-gradient(180deg,#FAFAFC 0%,#F0EDF9 100%);
+  color:var(--ink);
+  display:flex;flex-direction:column;
+  padding:3.2% 4%;
+}
+.sg-top{display:flex;justify-content:space-between;align-items:center;}
+.sg-logo{display:flex;align-items:center;gap:.75em;}
+.sg-logo .sq{width:clamp(26px,2.9vw,40px);height:clamp(26px,2.9vw,40px);border-radius:9px;overflow:hidden;}
+.sg-logo .sq svg{width:100%;height:100%;display:block;}
+.sg-logo .word{line-height:1.15;}
+.sg-logo .word strong{font-size:clamp(12px,1.45vw,19px);letter-spacing:-.015em;font-weight:700;display:block;}
+.sg-logo .word small{font-size:clamp(8.5px,.92vw,11.5px);color:var(--gray-2);letter-spacing:.12em;text-transform:uppercase;}
+.sg-clock{text-align:right;}
+.sg-clock .t{font-size:clamp(15px,1.9vw,26px);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.sg-clock .d{font-size:clamp(9px,1vw,13px);color:var(--gray-2);margin-top:2px;}
+.sg-hero{
+  flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;gap:2.6%;
+}
+.sg-slogan{
+  font-size:clamp(20px,3.2vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.12;
+}
+.sg-slogan em{font-style:normal;color:var(--purple);}
+.sg-desc{font-size:clamp(11px,1.35vw,17px);color:var(--gray);letter-spacing:.02em;}
+.sg-banner{
+  width:min(62%,640px);aspect-ratio:16/6.2;border-radius:clamp(12px,1.5vw,20px);
+  background:
+    radial-gradient(80% 130% at 20% 0%,rgba(124,58,237,.28),transparent 60%),
+    linear-gradient(120deg,#2E1065,#5B21B6 55%,#7C3AED);
+  box-shadow:0 30px 60px -22px var(--purple-glow);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.sg-banner .ghost{
+  font-size:clamp(16px,2.2vw,30px);font-weight:700;color:rgba(255,255,255,.22);
+  letter-spacing:.3em;text-transform:uppercase;
+}
+.sg-banner .stripe{
+  position:absolute;inset:auto -5% -18% -5%;height:52%;
+  background:radial-gradient(50% 100% at 50% 0%,rgba(255,255,255,.16),transparent 70%);
+}
+.sg-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(124,58,237,.12);
+  border-radius:clamp(11px,1.35vw,17px);
+  padding:1.7% 2.4%;
+  backdrop-filter:blur(10px);
+}
+.sg-next .lbl{font-size:clamp(8.5px,.95vw,12px);letter-spacing:.2em;text-transform:uppercase;color:var(--purple);font-weight:700;}
+.sg-next .val{font-size:clamp(11.5px,1.45vw,18.5px);font-weight:600;letter-spacing:-.015em;margin-top:.28em;}
+.sg-next .val span{color:var(--gray-2);font-weight:400;}
+.sg-status{
+  display:flex;align-items:center;gap:.55em;
+  font-size:clamp(9.5px,1.05vw,13px);color:var(--purple-deep);font-weight:600;
+}
+.sg-status i{width:.5em;height:.5em;border-radius:50%;background:#22C55E;display:block;}
+
+/* ============================================================
+   S3 · 管理后台 · 设备总览
+   ============================================================ */
+.admin{
+  display:grid;grid-template-columns:224px 1fr;min-height:640px;background:var(--mist);
+}
+.side{
+  background:var(--paper);border-right:1px solid var(--hair);
+  padding:26px 18px;display:flex;flex-direction:column;gap:4px;
+}
+.side .brand-mini{display:flex;align-items:center;gap:10px;padding:4px 10px 22px;}
+.side .brand-mini .sq{width:30px;height:30px;border-radius:8px;overflow:hidden;}
+.side .brand-mini .sq svg{width:100%;height:100%;display:block;}
+.side .brand-mini strong{font-size:15px;letter-spacing:-.01em;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 12px;border-radius:10px;
+  font-size:13.5px;color:var(--ink-2);letter-spacing:.01em;
+}
+.nav-item .ic{width:17px;height:17px;border-radius:5px;background:#E8E8ED;flex-shrink:0;}
+.nav-item.active{background:var(--purple-soft);color:var(--purple-deep);font-weight:600;}
+.nav-item.active .ic{background:var(--purple);}
+.side .spacer{flex:1;}
+.side .user{
+  border-top:1px solid var(--hair);padding-top:16px;margin-top:12px;
+  display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--gray);
+}
+.side .user .av{
+  width:30px;height:30px;border-radius:50%;background:var(--purple-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+}
+.main{padding:30px 34px 36px;}
+.main-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px;}
+.main-head h3{font-size:26px;letter-spacing:-.025em;font-weight:700;}
+.main-head p{font-size:13.5px;color:var(--gray);margin-top:6px;}
+.btn-primary{
+  background:var(--purple);color:#fff;border:none;border-radius:999px;
+  padding:11px 22px;font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  font-family:var(--font);cursor:pointer;
+  box-shadow:0 10px 24px -10px var(--purple-glow);
+}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat{
+  background:var(--paper);border-radius:16px;padding:20px 22px;
+  border:1px solid var(--hair);
+}
+.stat .k{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-2);font-weight:600;}
+.stat .v{font-size:30px;font-weight:700;letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums;}
+.stat .v small{font-size:14px;color:var(--gray-2);font-weight:500;letter-spacing:0;}
+.stat .d{font-size:12px;margin-top:5px;color:var(--gray);}
+.stat .d.up{color:#16A34A;}
+.panel{background:var(--paper);border-radius:18px;border:1px solid var(--hair);overflow:hidden;}
+.panel-head{
+  padding:18px 22px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--hair);
+}
+.panel-head h4{font-size:15.5px;font-weight:700;letter-spacing:-.01em;}
+.filter{display:flex;gap:8px;}
+.filter span{
+  font-size:12px;color:var(--gray);padding:6px 13px;border-radius:999px;
+  border:1px solid var(--hair);
+}
+.filter span.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+table{width:100%;border-collapse:collapse;}
+th{
+  text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gray-2);font-weight:600;padding:13px 22px;
+  border-bottom:1px solid var(--hair);
+}
+td{
+  padding:15px 22px;font-size:13.5px;color:var(--ink-2);
+  border-bottom:1px solid var(--hair);letter-spacing:.005em;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(124,58,237,.028);}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;
+}
+.badge i{width:6px;height:6px;border-radius:50%;display:block;}
+.badge.on{background:#ECFDF3;color:#047857;}
+.badge.on i{background:#10B981;}
+.badge.off{background:#FEF2F2;color:#B91C1C;}
+.badge.off i{background:#EF4444;}
+.badge.busy{background:var(--purple-soft);color:var(--purple-deep);}
+.badge.busy i{background:var(--purple);}
+.dev-name{font-weight:600;color:var(--ink);letter-spacing:-.01em;}
+.dev-name small{display:block;font-weight:400;color:var(--gray-2);font-size:11.5px;margin-top:2px;}
+
+/* ============================================================
+   S4 · 素材管理 · 双轨
+   ============================================================ */
+.mat-tabs{display:flex;gap:26px;border-bottom:1px solid var(--hair);margin-bottom:26px;}
+.mat-tab{
+  padding-bottom:14px;font-size:15px;font-weight:600;letter-spacing:-.01em;
+  color:var(--gray-2);position:relative;cursor:default;
+}
+.mat-tab.on{color:var(--ink);}
+.mat-tab.on::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2.5px;
+  background:var(--purple);border-radius:2px;
+}
+.mat-tab .cnt{
+  font-size:11px;background:#EDEDF0;color:var(--gray);
+  padding:2px 8px;border-radius:999px;margin-left:8px;font-weight:600;
+}
+.mat-tab.on .cnt{background:var(--purple-soft);color:var(--purple-deep);}
+.mat-banner{
+  display:flex;align-items:center;gap:16px;
+  background:linear-gradient(100deg,#F5F3FF,#FAFAFC);
+  border:1px solid rgba(124,58,237,.14);
+  border-radius:16px;padding:16px 22px;margin-bottom:22px;
+}
+.mat-banner .ic{
+  width:38px;height:38px;border-radius:11px;flex-shrink:0;
+  background:var(--purple);display:flex;align-items:center;justify-content:center;
+}
+.mat-banner p{font-size:13px;color:var(--ink-2);line-height:1.6;}
+.mat-banner p b{color:var(--purple-deep);}
+.mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.mat-card{
+  background:var(--paper);border:1px solid var(--hair);border-radius:18px;overflow:hidden;
+}
+.mat-cover{aspect-ratio:16/9.6;position:relative;}
+.mat-cover.a{background:linear-gradient(135deg,#F5F3FF,#DDD6FE 55%,#EDE9FE);}
+.mat-cover.b{background:linear-gradient(140deg,#EDE9FE,#E9D5FF 60%,#F5F3FF);}
+.mat-cover.c{background:linear-gradient(135deg,#FAF5FF,#DDD6FE 55%,#EDE9FE);}
+.mat-cover.d{background:linear-gradient(135deg,#EDE9FE,#C4B5FD);}
+.mat-cover.e{background:linear-gradient(140deg,#F5F3FF,#E9D5FF 55%,#DDD6FE);}
+.mat-cover.f{background:linear-gradient(135deg,#FAF5FF,#EDE9FE 55%,#DDD6FE);}
+.mat-cover .badge-t{
+  position:absolute;top:12px;left:12px;
+  font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  background:rgba(255,255,255,.9);color:var(--purple-deep);
+  padding:5px 10px;border-radius:999px;
+}
+.mat-cover .badge-t.exp{background:rgba(29,29,31,.82);color:#fff;}
+.mat-cover .play{
+  position:absolute;inset:0;margin:auto;width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px -6px rgba(76,29,149,.28);
+}
+.mat-cover .play::after{
+  content:"";border-left:11px solid var(--purple-deep);
+  border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px;
+}
+.mat-info{padding:15px 17px 17px;}
+.mat-info .t{font-size:13.5px;font-weight:600;letter-spacing:-.01em;}
+.mat-info .m{
+  margin-top:6px;font-size:11.5px;color:var(--gray-2);
+  display:flex;justify-content:space-between;letter-spacing:.01em;
+}
+
+/* ============================================================
+   S5 · 免登录上传页
+   ============================================================ */
+.upload-wrap{
+  background:
+    radial-gradient(70% 55% at 50% -8%,rgba(124,58,237,.12),transparent 62%),
+    var(--mist);
+  padding:56px 24px 64px;display:flex;flex-direction:column;align-items:center;
+}
+.up-card{
+  width:min(560px,100%);
+  background:var(--paper);border-radius:24px;
+  border:1px solid var(--hair);
+  box-shadow:var(--shadow-soft);
+  padding:42px 44px 36px;
+}
+.up-eyebrow{
+  display:flex;align-items:center;gap:10px;
+  font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--purple);font-weight:700;
+}
+.up-eyebrow .sq{width:22px;height:22px;border-radius:6px;overflow:hidden;}
+.up-eyebrow .sq svg{width:100%;height:100%;display:block;}
+.up-card h3{font-size:27px;letter-spacing:-.025em;font-weight:700;margin-top:16px;line-height:1.18;}
+.up-card .meta{
+  margin-top:12px;font-size:13.5px;color:var(--gray);line-height:1.7;
+}
+.up-card .meta b{color:var(--ink);font-weight:600;}
+.dropzone{
+  margin-top:26px;border:1.5px dashed rgba(124,58,237,.35);
+  background:#FAF8FF;border-radius:16px;
+  padding:34px 20px;text-align:center;cursor:default;
+  transition:all .2s ease;
+}
+.dropzone:hover{border-color:var(--purple);background:#F5F1FE;}
+.dropzone .ic{
+  width:44px;height:44px;margin:0 auto 14px;border-radius:13px;
+  background:var(--purple-soft);display:flex;align-items:center;justify-content:center;
+}
+.dropzone .ic svg{width:20px;height:20px;}
+.dropzone p{font-size:13.5px;color:var(--ink-2);font-weight:500;}
+.dropzone small{display:block;margin-top:6px;font-size:11.5px;color:var(--gray-2);}
+.file-list{margin-top:18px;display:flex;flex-direction:column;gap:9px;}
+.file{
+  display:flex;align-items:center;gap:12px;
+  background:var(--mist);border-radius:12px;padding:11px 14px;
+}
+.file .ft{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  background:var(--purple-deep);color:#fff;font-size:9.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;letter-spacing:.04em;
+}
+.file .ft.png{background:var(--purple);}
+.file .fn{flex:1;font-size:12.5px;color:var(--ink-2);letter-spacing:.01em;}
+.file .fn small{display:block;color:var(--gray-2);font-size:11px;margin-top:2px;}
+.file .st{font-size:11px;color:#047857;font-weight:600;}
+.up-note{
+  margin-top:22px;font-size:11.5px;color:var(--gray-2);line-height:1.75;
+  display:flex;gap:9px;
+}
+.up-note .lock{
+  width:15px;height:15px;flex-shrink:0;margin-top:1px;
+}
+.up-foot{
+  margin-top:26px;font-size:11px;color:var(--gray-2);letter-spacing:.02em;
+  text-align:center;
+}
+
+/* ---------- feedback footer ---------- */
+.feedback{
+  background:var(--ink);color:#F5F5F7;
+  padding:clamp(64px,8vw,96px) 24px;
+}
+.feedback-inner{max-width:1120px;margin:0 auto;}
+.feedback h2{font-size:clamp(28px,3.8vw,44px);letter-spacing:-.028em;font-weight:700;}
+.feedback .lead{margin-top:16px;font-size:17px;line-height:1.7;color:rgba(245,245,247,.58);max-width:640px;}
+.fb-grid{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.fb-item{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;padding:24px 24px 22px;
+}
+.fb-item .n{
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:#C4B5FD;font-weight:700;margin-bottom:12px;
+}
+.fb-item p{font-size:14.5px;line-height:1.62;color:rgba(245,245,247,.86);letter-spacing:-.005em;}
+.credit{
+  margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);
+  font-size:12px;color:rgba(245,245,247,.38);letter-spacing:.03em;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+
+/* ============================================================
+   S6 · 设备待绑定屏（开机 · device_id）
+   ============================================================ */
+.boot-page{
+  height:100%;
+  background:
+    radial-gradient(85% 75% at 78% -12%,rgba(124,58,237,.14),transparent 58%),
+    linear-gradient(180deg,#FAFAFC 0%,#F0EDF9 100%);
+  color:var(--ink);
+  display:flex;flex-direction:column;
+  padding:3.2% 4%;
+}
+.bt-top{display:flex;justify-content:space-between;align-items:center;}
+.bt-brand{display:flex;align-items:center;gap:.75em;font-size:clamp(11px,1.3vw,17px);font-weight:600;letter-spacing:.02em;color:var(--ink);}
+.bt-brand .logo-sq{width:clamp(22px,2.3vw,32px);height:clamp(22px,2.3vw,32px);border-radius:8px;overflow:hidden;}
+.bt-brand .logo-sq svg{width:100%;height:100%;display:block;}
+.bt-step-pill{
+  font-size:clamp(9px,1vw,13px);letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--purple-deep);background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.22);
+  padding:.55em 1.15em;border-radius:999px;
+}
+.bt-body{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+.bt-label{
+  font-size:clamp(10px,1.15vw,15px);letter-spacing:.26em;text-transform:uppercase;
+  color:var(--gray-2);font-weight:600;
+}
+.bt-code{
+  margin-top:1.6%;
+  font-size:clamp(34px,5.4vw,74px);font-weight:700;letter-spacing:.06em;line-height:1;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,#1D1D1F 20%,#4C1D95 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.bt-sub{
+  margin-top:2.2%;font-size:clamp(11px,1.35vw,17px);color:var(--gray);
+  letter-spacing:.01em;
+}
+.bt-sub code{
+  font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:.92em;
+  background:rgba(124,58,237,.1);padding:.18em .6em;border-radius:6px;color:var(--purple-deep);
+}
+.bt-state{
+  margin-top:3.2%;
+  display:inline-flex;align-items:center;gap:.6em;
+  font-size:clamp(10px,1.15vw,14.5px);font-weight:600;
+  color:var(--purple-deep);
+}
+.bt-state i{
+  width:.55em;height:.55em;border-radius:50%;background:var(--purple);display:block;
+  animation:pulse 2.4s ease-out infinite;
+}
+.bt-flow{
+  margin-top:5.5%;width:100%;max-width:92%;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2.2%;
+}
+.bt-flow .cell{
+  background:rgba(255,255,255,.82);border:1px solid rgba(124,58,237,.12);
+  border-radius:clamp(11px,1.4vw,17px);padding:5.5% 6%;text-align:left;
+  box-shadow:0 14px 34px -18px rgba(76,29,149,.18);
+}
+.bt-flow .n{
+  font-size:clamp(9px,1vw,12.5px);letter-spacing:.16em;font-weight:700;color:var(--purple);
+}
+.bt-flow p{
+  margin-top:.55em;font-size:clamp(10px,1.18vw,15px);line-height:1.52;
+  color:var(--ink-2);letter-spacing:-.005em;
+}
+.bt-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:2.2%;border-top:1px solid rgba(124,58,237,.12);
+  font-size:clamp(10px,1.1vw,13.5px);color:var(--gray-2);letter-spacing:.02em;
+}
+
+/* ============================================================
+   S7 · 扫码确认弹层（后台 modal）
+   ============================================================ */
+.modal-overlay{
+  position:absolute;inset:0;background:rgba(29,29,31,.48);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(3px);
+}
+.modal-card{
+  width:min(480px,88%);
+  background:var(--paper);border-radius:22px;
+  box-shadow:0 50px 110px -30px rgba(0,0,0,.45);
+  overflow:hidden;
+  text-align:left;
+}
+.modal-head{
+  padding:22px 26px 0;display:flex;justify-content:space-between;align-items:flex-start;
+}
+.modal-head h4{font-size:19px;letter-spacing:-.02em;font-weight:700;}
+.modal-head p{font-size:12px;color:var(--gray);margin-top:5px;}
+.modal-x{
+  width:28px;height:28px;border-radius:50%;background:var(--mist);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:var(--gray);flex-shrink:0;
+}
+.modal-body{padding:20px 26px 6px;}
+.m-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 0;border-bottom:1px solid var(--hair);
+}
+.m-row:last-of-type{border-bottom:none;}
+.m-row .k{font-size:12.5px;color:var(--gray);}
+.m-row .v{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em;text-align:right;}
+.m-row .v small{display:block;font-weight:400;color:var(--gray-2);font-size:11px;margin-top:2px;}
+.m-dev{
+  margin:12px 0 4px;background:var(--purple-soft);
+  border:1px solid rgba(124,58,237,.18);border-radius:14px;padding:14px 16px;
+}
+.m-dev .lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);font-weight:700;}
+.m-dev .code{
+  margin-top:7px;font-size:19px;font-weight:700;letter-spacing:.05em;color:var(--purple-deep);
+  font-variant-numeric:tabular-nums;
+}
+.m-dev .code span{font-size:11px;font-weight:400;color:var(--gray);letter-spacing:0;margin-left:10px;}
+.m-hint{font-size:11px;color:var(--gray-2);margin:10px 0 2px;line-height:1.6;}
+.modal-foot{
+  padding:14px 26px 22px;display:flex;gap:10px;justify-content:flex-end;
+}
+.btn-ghost{
+  background:var(--mist);color:var(--ink-2);border:none;border-radius:999px;
+  padding:11px 22px;font-size:13.5px;font-weight:600;font-family:var(--font);cursor:pointer;
+}
+
+/* ============================================================
+   S8 · 点餐提醒卡（SHOW_NOTICE）
+   ============================================================ */
+.meal-veil{
+  position:absolute;inset:0;
+  background:rgba(12,10,20,.52);
+  backdrop-filter:blur(2.5px);
+  display:flex;align-items:center;justify-content:center;
+}
+.meal-card{
+  width:min(72%,520px);
+  background:rgba(255,255,255,.97);
+  border-radius:clamp(16px,2vw,26px);
+  padding:5.2% 5.6%;
+  text-align:left;
+  box-shadow:0 50px 110px -30px rgba(0,0,0,.5);
+}
+.meal-icon{
+  width:clamp(38px,4vw,54px);height:clamp(38px,4vw,54px);border-radius:50%;
+  background:var(--purple-soft);display:flex;align-items:center;justify-content:center;
+}
+.meal-icon svg{width:46%;height:46%;}
+.meal-card h4{
+  margin-top:4.2%;font-size:clamp(17px,2.3vw,31px);letter-spacing:-.025em;
+  font-weight:700;color:var(--ink);line-height:1.22;
+}
+.meal-card .detail{
+  margin-top:2.8%;font-size:clamp(11px,1.35vw,16.5px);color:var(--gray);
+  line-height:1.65;letter-spacing:-.005em;
+}
+.meal-card .detail b{color:var(--ink);font-weight:600;}
+.meal-actions{
+  margin-top:5%;display:flex;gap:2.4%;align-items:center;
+}
+.meal-btn{
+  border-radius:999px;padding:.95em 1.6em;
+  font-size:clamp(11px,1.35vw,16px);font-weight:600;letter-spacing:.01em;
+  font-family:var(--font);cursor:pointer;border:none;
+}
+.meal-btn.primary{
+  background:var(--purple);color:#fff;flex:1;
+  box-shadow:0 14px 32px -12px var(--purple-glow);
+}
+.meal-btn.ghost{background:var(--mist);color:var(--ink-2);flex:.62;}
+.meal-foot{
+  margin-top:4.2%;font-size:clamp(9.5px,1.1vw,13px);color:var(--gray-2);
+  letter-spacing:.015em;display:flex;gap:.5em;
+}
+.meal-foot svg{width:1.05em;height:1.05em;flex-shrink:0;margin-top:.15em;}
+
+/* ============================================================
+   S9 · 日历源配置页
+   ============================================================ */
+.cal-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;}
+.cal-panel{
+  background:var(--paper);border:1px solid var(--hair);border-radius:18px;overflow:hidden;
+}
+.cal-panel-head{
+  padding:18px 22px;border-bottom:1px solid var(--hair);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.cal-panel-head h4{font-size:15.5px;font-weight:700;letter-spacing:-.01em;}
+.cal-body{padding:8px 22px 18px;}
+.cal-row{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:15px 0;border-bottom:1px solid var(--hair);
+}
+.cal-row:last-child{border-bottom:none;}
+.cal-row .k{font-size:12.5px;color:var(--gray);flex-shrink:0;min-width:112px;}
+.cal-row .v{font-size:13.5px;color:var(--ink);font-weight:500;letter-spacing:-.005em;text-align:right;flex:1;}
+.cal-row .v code{
+  font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:.92em;
+  background:var(--mist);padding:.16em .55em;border-radius:6px;color:var(--ink-2);
+}
+.badge-prob{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;
+  background:var(--purple-soft);color:var(--purple-deep);
+}
+.badge-prob i{width:6px;height:6px;border-radius:50%;background:var(--purple);display:block;}
+.btn-mini{
+  background:var(--purple);color:#fff;border:none;border-radius:999px;
+  padding:8px 16px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;
+  white-space:nowrap;
+}
+.pull-item{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 0;border-bottom:1px solid var(--hair);
+}
+.pull-item:last-child{border-bottom:none;}
+.pull-item .pi{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:var(--purple-soft);display:flex;align-items:center;justify-content:center;
+}
+.pull-item .pi svg{width:16px;height:16px;}
+.pull-item .pt{flex:1;}
+.pull-item .pt .t{font-size:13px;font-weight:600;letter-spacing:-.01em;color:var(--ink);}
+.pull-item .pt .s{font-size:11.5px;color:var(--gray-2);margin-top:3px;line-height:1.5;}
+.switch{
+  width:38px;height:22px;border-radius:999px;background:var(--purple);
+  position:relative;flex-shrink:0;
+}
+.switch::after{
+  content:"";position:absolute;top:2.5px;right:3px;width:17px;height:17px;
+  border-radius:50%;background:#fff;
+}
+.switch.off{background:#D1D5DB;}
+.switch.off::after{right:auto;left:3px;}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .mat-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:860px){
+  .admin{grid-template-columns:1fr;}
+  .side{flex-direction:row;flex-wrap:wrap;align-items:center;border-right:none;border-bottom:1px solid var(--hair);}
+  .side .brand-mini{padding:4px 10px;}
+  .side .spacer,.side .user{display:none;}
+  .mp-body{grid-template-columns:1fr;gap:4%;}
+  .mp-agenda{display:none;}
+}
+@media (max-width:680px){
+  .mat-grid{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .main{padding:22px 18px;}
+  .up-card{padding:32px 24px 28px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+  html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<header class="hero">
+  <div class="kicker">Newline MeetCast · UI Design V1.1 · FINAL</div>
+  <h1>会议室那块屏，<br>由<em>日程</em>驱动。</h1>
+  <p class="sub">核心界面设计定稿 · 黑白紫 · Apple 风格克制美学。共 9 块界面：会议页、标牌页、设备总览、双轨素材、免登录上传、设备待绑定屏、扫码确认弹层、点餐提醒卡、日历源配置。</p>
+  <div class="chips">
+    <span class="chip"><b>16:9</b> 会议室大屏</span>
+    <span class="chip"><b>Web</b> 管理后台</span>
+    <span class="chip"><b>Web</b> 免登录上传页</span>
+    <span class="chip"><b>#7C3AED</b> 品牌紫</span>
+    <span class="chip"><b>FINAL</b> · 2026-10-27 定稿</span>
+  </div>
+</header>
+
+<!-- ══════════ DESIGN TOKENS ══════════ -->
+<section class="tokens">
+  <div class="tokens-inner">
+    <h2>Design Language · 设计语言</h2>
+    <div class="swatch-row">
+      <div class="swatch sw-ink">
+        <div class="name">Ink 近黑</div>
+        <div class="hex">#1D1D1F · 文字与深底</div>
+      </div>
+      <div class="swatch sw-purple">
+        <div class="name">Brand Purple 品牌紫</div>
+        <div class="hex">#7C3AED · 强调与主按钮</div>
+      </div>
+      <div class="swatch sw-deep">
+        <div class="name">Deep 深紫</div>
+        <div class="hex">#4C1D95 · 标题强调 / 深色</div>
+      </div>
+      <div class="swatch sw-paper">
+        <div class="name">Paper 纸白</div>
+        <div class="hex">#FFFFFF · 卡片与内容面</div>
+      </div>
+      <div class="swatch sw-mist">
+        <div class="name">Mist 苹果灰</div>
+        <div class="hex">#F5F5F7 · 页面底色</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S1 · 会议页 ══════════ -->
+<section class="section" id="s1">
+  <div class="section-head">
+    <div class="no">SCREEN 01</div>
+    <h2>会议页<br>会议室大屏 · 会议进行中</h2>
+    <p>主场景核心界面。深紫雾底色营造沉浸感，会议信息一眼可读：主题、时间、参会人、议程。右侧议程卡带本场专属素材缩略（定会者直传），底部预告下一场。</p>
+    <div class="tags">
+      <span class="tag">F3 场景自动编排</span>
+      <span class="tag">F5 会议页生成</span>
+      <span class="tag">F4.7 专属素材</span>
+      <span class="tag ghost">深色 · 16:9</span>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="device-screen">
+      <div class="meeting-page">
+        <div class="mp-top">
+          <div class="mp-room">Room-A3-01 · 上海总部 3F</div>
+          <div class="mp-clock">10:26 · 周二 10月27日</div>
+        </div>
+        <div class="mp-body">
+          <div>
+            <div class="mp-live">Meeting in Progress</div>
+            <div class="mp-title">产品评审会</div>
+            <div class="mp-meta">
+              <span><b>10:00 – 11:00</b></span>
+              <span>组织者 <b>张三</b></span>
+              <span><b>6</b> 位参会人</span>
+            </div>
+            <div class="mp-people">
+              <div class="avatar">张</div>
+              <div class="avatar">李</div>
+              <div class="avatar">王</div>
+              <div class="avatar">陈</div>
+              <div class="avatar more">+2</div>
+            </div>
+          </div>
+          <div class="mp-agenda">
+            <div class="label">今日议程</div>
+            <ul>
+              <li><span>01</span>Q3 复盘：指标与缺口</li>
+              <li><span>02</span>Q4 路线图对齐</li>
+              <li><span>03</span>资源与排期确认</li>
+            </ul>
+            <div class="asset">
+              <div class="asset-thumb"></div>
+              <div class="asset-name">
+                Q3-review-cover.png
+                <small>本场专属素材 · 张三上传</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mp-foot">
+          <div class="mp-next">下一场 <b>11:30 周会</b> · 本会议室</div>
+          <div class="mp-brand">
+            <div class="logo-sq">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+            </div>
+            MeetCast
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="device-foot"><span>Meeting Display</span><span>16:9 · 1920×1080</span></div>
+  </div>
+</section>
+
+<!-- ══════════ S2 · 标牌页 ══════════ -->
+<section class="section" id="s2" style="max-width:1240px;">
+  <div class="section-head">
+    <div class="no">SCREEN 02</div>
+    <h2>标牌页<br>会议室大屏 · 会间空档</h2>
+    <p>无会议时自动恢复的默认场景。亮色留白传递企业形象，品牌紫做视觉焦点；底部玻璃条预告下一场会议，让屏幕在空档期也"有信息量"。</p>
+    <div class="tags">
+      <span class="tag">F3.4 标牌时段策略</span>
+      <span class="tag">F4 公共素材</span>
+      <span class="tag ghost">浅色 · 16:9</span>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="device-screen">
+      <div class="sign-page">
+        <div class="sg-top">
+          <div class="sg-logo">
+            <div class="sq">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+            </div>
+            <div class="word">
+              <strong>Newline MeetCast</strong>
+              <small>Room-A3-01</small>
+            </div>
+          </div>
+          <div class="sg-clock">
+            <div class="t">09:41</div>
+            <div class="d">10月27日 周二 · Asia/Shanghai</div>
+          </div>
+        </div>
+        <div class="sg-hero">
+          <div class="sg-slogan">智能会议室，<em>从日程开始</em>。</div>
+          <div class="sg-desc">会议自动切换 · 会间展示企业形象 · 多时区自适应</div>
+          <div class="sg-banner">
+            <div class="ghost">Brand Film</div>
+            <div class="stripe"></div>
+          </div>
+        </div>
+        <div class="sg-foot">
+          <div class="sg-next">
+            <div class="lbl">Up Next</div>
+            <div class="val">10:00 产品评审会 <span>· 张三 · 6 人</span></div>
+          </div>
+          <div class="sg-status"><i></i>设备在线 · 日历已同步</div>
+        </div>
+      </div>
+    </div>
+    <div class="device-foot"><span>Signage Display</span><span>16:9 · 1920×1080</span></div>
+  </div>
+</section>
+
+<!-- ══════════ S3 · 管理后台 ══════════ -->
+<section class="section" id="s3">
+  <div class="section-head">
+    <div class="no">SCREEN 03</div>
+    <h2>设备总览<br>管理后台 · 运营与运维</h2>
+    <p>管理员日常主界面。左侧导航承载五大模块，顶部四指标条给出全局状态，设备表实时呈现在线、播放内容与心跳。绑定设备 = 扫门口码后在此确认。</p>
+    <div class="tags">
+      <span class="tag">F1 设备注册绑定</span>
+      <span class="tag">F7 运维可观测</span>
+      <span class="tag ghost">Web · 浅色</span>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="url">meetcast.admin / devices</div>
+    </div>
+    <div class="admin">
+      <aside class="side">
+        <div class="brand-mini">
+          <div class="sq">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+          </div>
+          <strong>MeetCast</strong>
+        </div>
+        <div class="nav-item"><div class="ic"></div>总览</div>
+        <div class="nav-item active"><div class="ic"></div>设备</div>
+        <div class="nav-item"><div class="ic"></div>会议室</div>
+        <div class="nav-item"><div class="ic"></div>素材</div>
+        <div class="nav-item"><div class="ic"></div>日历源</div>
+        <div class="nav-item"><div class="ic"></div>审计日志</div>
+        <div class="spacer"></div>
+        <div class="user">
+          <div class="av">管</div>
+          <div>管理员 · IT 运维</div>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="main-head">
+          <div>
+            <h3>设备</h3>
+            <p>4 间会议室 · 试点：上海 / 新加坡 / 巴塞罗那 / 纽约</p>
+          </div>
+          <button class="btn-primary">绑定新设备</button>
+        </div>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="k">Online</div>
+            <div class="v">11<small> / 12</small></div>
+            <div class="d up">在线率 91.7%</div>
+          </div>
+          <div class="stat">
+            <div class="k">Meetings Today</div>
+            <div class="v">47</div>
+            <div class="d">自动切换 47 次</div>
+          </div>
+          <div class="stat">
+            <div class="k">Command</div>
+            <div class="v">99.2<small>%</small></div>
+            <div class="d up">指令成功率 ↑</div>
+          </div>
+          <div class="stat">
+            <div class="k">Calendar</div>
+            <div class="v">4<small> / 4</small></div>
+            <div class="d up">M365 源全部正常</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h4>设备列表</h4>
+            <div class="filter">
+              <span class="on">全部</span>
+              <span>在线</span>
+              <span>离线</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>设备</th><th>会议室</th><th>状态</th><th>当前播放</th><th>心跳</th><th>版本</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="dev-name">SH-A3-01-01<small>device_sh_001</small></td>
+                <td>Room-A3-01 · 上海</td>
+                <td><span class="badge busy"><i></i>会议中</span></td>
+                <td>产品评审会 · 会议页</td>
+                <td>12s 前</td>
+                <td>v1.0.0</td>
+              </tr>
+              <tr>
+                <td class="dev-name">SH-B2-05-01<small>device_sh_002</small></td>
+                <td>Room-B2-05 · 上海</td>
+                <td><span class="badge on"><i></i>在线</span></td>
+                <td>品牌宣传片 · 标牌页</td>
+                <td>8s 前</td>
+                <td>v1.0.0</td>
+              </tr>
+              <tr>
+                <td class="dev-name">SG-C1-02-01<small>device_sg_001</small></td>
+                <td>Room-C1-02 · 新加坡</td>
+                <td><span class="badge on"><i></i>在线</span></td>
+                <td>使用须知 · 标牌页</td>
+                <td>15s 前</td>
+                <td>v1.0.0</td>
+              </tr>
+              <tr>
+                <td class="dev-name">BCN-01-01<small>device_bcn_001</small></td>
+                <td>Room-01 · 巴塞罗那</td>
+                <td><span class="badge on"><i></i>在线</span></td>
+                <td>品牌宣传片 · 标牌页</td>
+                <td>21s 前</td>
+                <td>v1.0.0</td>
+              </tr>
+              <tr>
+                <td class="dev-name">NYC-12F-01<small>device_nyc_001</small></td>
+                <td>Room-12F · 纽约</td>
+                <td><span class="badge off"><i></i>离线</span></td>
+                <td>—</td>
+                <td>3 分钟前</td>
+                <td>v0.9.8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S4 · 素材管理 ══════════ -->
+<section class="section" id="s4">
+  <div class="section-head">
+    <div class="no">SCREEN 04</div>
+    <h2>素材管理<br>公共 × 会议专属 · 双轨</h2>
+    <p>Tab 双轨切换：公共素材全会议室共享（15 天 LRU），会议专属素材绑定 meeting_id、会后自动清理。卡片标注生命周期来源，避免"这张图还能不能用"的猜测。</p>
+    <div class="tags">
+      <span class="tag">F4 素材管理</span>
+      <span class="tag">F4.8 生命周期</span>
+      <span class="tag ghost">Web · 浅色</span>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="url">meetcast.admin / materials</div>
+    </div>
+    <div class="main" style="background:var(--mist);">
+      <div class="main-head">
+        <div>
+          <h3>素材</h3>
+          <p>公共素材 24 件 · 会议专属 8 件 · 设备缓存占用 34.2 GB / 128 GB</p>
+        </div>
+        <button class="btn-primary">上传素材</button>
+      </div>
+      <div class="mat-tabs">
+        <div class="mat-tab on">会议专属<span class="cnt">8</span></div>
+        <div class="mat-tab">公共素材<span class="cnt">24</span></div>
+      </div>
+      <div class="mat-banner">
+        <div class="ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v5m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <p><b>会议专属素材</b>仅在本场会议期间对指定会议室可见，<b>会后自动清理</b>（设备本地同步删除）。公共素材不受影响，按 15 天未用 LRU 自动淘汰。</p>
+      </div>
+      <div class="mat-grid">
+        <div class="mat-card">
+          <div class="mat-cover a">
+            <span class="badge-t exp">会后清理</span>
+            <div class="play"></div>
+          </div>
+          <div class="mat-info">
+            <div class="t">Q3-review-cover.png</div>
+            <div class="m"><span>产品评审会 · 张三</span><span>今天 08:12</span></div>
+          </div>
+        </div>
+        <div class="mat-card">
+          <div class="mat-cover b">
+            <span class="badge-t exp">会后清理</span>
+            <div class="play"></div>
+          </div>
+          <div class="mat-info">
+            <div class="t">agenda-v2.mp4</div>
+            <div class="m"><span>产品评审会 · 张三</span><span>今天 08:15</span></div>
+          </div>
+        </div>
+        <div class="mat-card">
+          <div class="mat-cover c">
+            <span class="badge-t exp">会后清理</span>
+          </div>
+          <div class="mat-info">
+            <div class="t">roadmap-q4.png</div>
+            <div class="m"><span>周会 · 李四</span><span>昨天 19:40</span></div>
+          </div>
+        </div>
+        <div class="mat-card">
+          <div class="mat-cover d">
+            <span class="badge-t exp">会后清理</span>
+            <div class="play"></div>
+          </div>
+          <div class="mat-info">
+            <div class="t">kickoff-intro.mp4</div>
+            <div class="m"><span>项目启动会 · 王五</span><span>昨天 14:02</span></div>
+          </div>
+        </div>
+        <div class="mat-card">
+          <div class="mat-cover e">
+            <span class="badge-t exp">会后清理</span>
+          </div>
+          <div class="mat-info">
+            <div class="t">seating-map.png</div>
+            <div class="m"><span>全员会 · 陈六</span><span>10月25日</span></div>
+          </div>
+        </div>
+        <div class="mat-card">
+          <div class="mat-cover f">
+            <span class="badge-t exp">会后清理</span>
+          </div>
+          <div class="mat-info">
+            <div class="t">demo-script.png</div>
+            <div class="m"><span>客户演示 · 赵七</span><span>10月24日</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S5 · 免登录上传 ══════════ -->
+<section class="section" id="s5" style="max-width:1240px;">
+  <div class="section-head">
+    <div class="no">SCREEN 05</div>
+    <h2>免登录上传<br>定会者专属素材直传</h2>
+    <p>定会者点开邮件里的专属链接即达此页——无账号、无导航、无干扰。一屏完成：确认会议信息 → 拖拽上传 → 看到"会后自动清理"的安全承诺。</p>
+    <div class="tags">
+      <span class="tag">F4.7 免登录直传</span>
+      <span class="tag">场景 E</span>
+      <span class="tag ghost">Web · 单任务页</span>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="url">meetcast.app / upload / tk_8f3a…（免登录 token）</div>
+    </div>
+    <div class="upload-wrap">
+      <div class="up-card">
+        <div class="up-eyebrow">
+          <div class="sq">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+          </div>
+          Newline MeetCast
+        </div>
+        <h3>为「产品评审会」<br>上传会议素材</h3>
+        <div class="meta">
+          <b>10月27日 10:00 – 11:00</b> · Room-A3-01（上海总部 3F）<br>
+          上传的素材仅在<b>本场会议</b>期间显示，其他会议与其他会议室不可见。
+        </div>
+        <div class="dropzone">
+          <div class="ic">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <p>拖拽文件到此处，或点击选择</p>
+          <small>支持 PNG / JPG / MP4 / MP3 · 单文件 ≤ 500MB · 截止会前 30 分钟</small>
+        </div>
+        <div class="file-list">
+          <div class="file">
+            <div class="ft png">PNG</div>
+            <div class="fn">Q3-review-cover.png<small>2.4 MB · 已就绪</small></div>
+            <div class="st">已完成</div>
+          </div>
+          <div class="file">
+            <div class="ft">MP4</div>
+            <div class="fn">agenda-v2.mp4<small>48.1 MB · 已就绪</small></div>
+            <div class="st">已完成</div>
+          </div>
+        </div>
+        <div class="up-note">
+          <svg class="lock" viewBox="0 0 24 24" fill="none"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" stroke="#86868B" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>本链接绑定本场会议，会后自动失效。素材在会议结束后自动清理（设备本地同步删除），无需你手动删除。</span>
+        </div>
+      </div>
+      <div class="up-foot">© Newline MeetCast · 本页面无需登录，仅限本次会议使用</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S6 · 设备待绑定屏 ══════════ -->
+<section class="section" id="s6">
+  <div class="section-head">
+    <div class="no">SCREEN 06</div>
+    <h2>设备待绑定屏<br>开机 · 展示 device_id</h2>
+    <p>设备开机后的第一屏（对应 F1.1 绑定配合）。大号设备码居中，供人工对照录入；下方三步说明把"谁扫谁、在哪确认"讲清楚——门口二维码只含 room_id，device_id 只在这里出现。</p>
+    <div class="tags">
+      <span class="tag">F1.1 设备绑定</span>
+      <span class="tag">A1 绑定配合</span>
+      <span class="tag ghost">浅色 · 16:9</span>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="device-screen">
+      <div class="boot-page">
+        <div class="bt-top">
+          <div class="bt-brand">
+            <div class="logo-sq">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+            </div>
+            Newline MeetCast
+          </div>
+          <div class="bt-step-pill">Step 1 · 设备注册</div>
+        </div>
+        <div class="bt-body">
+          <div class="bt-label">本机设备码 · Device ID</div>
+          <div class="bt-code">SH-A3-01-01</div>
+          <div class="bt-sub">上报编号 <code>device_sh_003</code> · 固件 Android 15 · Agent v1.0.0</div>
+          <div class="bt-state"><i></i>设备已上线，等待管理员绑定</div>
+          <div class="bt-flow">
+            <div class="cell">
+              <div class="n">01</div>
+              <p>管理员手机扫<strong>门口二维码</strong>（只含 room_id）</p>
+            </div>
+            <div class="cell">
+              <div class="n">02</div>
+              <p>后台「待绑定设备」列表选中上方<strong>设备码</strong></p>
+            </div>
+            <div class="cell">
+              <div class="n">03</div>
+              <p>确认绑定，本机进入该会议室调度范围</p>
+            </div>
+          </div>
+        </div>
+        <div class="bt-foot">
+          <div>屏幕将保持本页直到绑定完成</div>
+          <div>无需在设备上做任何操作</div>
+        </div>
+      </div>
+    </div>
+    <div class="device-foot"><span>Boot / Pairing</span><span>16:9 · 1920×1080</span></div>
+  </div>
+</section>
+
+<!-- ══════════ S7 · 扫码确认弹层 ══════════ -->
+<section class="section" id="s7">
+  <div class="section-head">
+    <div class="no">SCREEN 07</div>
+    <h2>扫码确认弹层<br>绑定前最后一步</h2>
+    <p>管理员扫门口二维码后弹出（场景 B 终点）。弹层把"扫到的会议室"和"选中的设备"并排核对——二维码解析结果在上，设备码高亮在下，确认即写入 device.room_id。</p>
+    <div class="tags">
+      <span class="tag">F1.1 设备绑定</span>
+      <span class="tag">场景 B</span>
+      <span class="tag ghost">Web · 弹层</span>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="url">meetcast.admin / devices / bind</div>
+    </div>
+    <div style="position:relative;background:var(--mist);min-height:560px;">
+      <!-- 背景内容（被遮罩） -->
+      <div class="admin" style="opacity:.55;min-height:560px;">
+        <aside class="side">
+          <div class="brand-mini">
+            <div class="sq">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#7C3AED"/><rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/><rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/><rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/><rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/><rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/><rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/><rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/></svg>
+            </div>
+            <strong>MeetCast</strong>
+          </div>
+          <div class="nav-item"><div class="ic"></div>总览</div>
+          <div class="nav-item active"><div class="ic"></div>设备</div>
+          <div class="nav-item"><div class="ic"></div>会议室</div>
+          <div class="nav-item"><div class="ic"></div>素材</div>
+          <div class="nav-item"><div class="ic"></div>日历源</div>
+          <div class="nav-item"><div class="ic"></div>审计日志</div>
+        </aside>
+        <div class="main">
+          <div class="main-head">
+            <div><h3>绑定设备</h3><p>扫码解析中…</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- 弹层 -->
+      <div class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-head">
+            <div>
+              <h4>确认绑定这台设备？</h4>
+              <p>二维码解析成功 · 请核对设备码与屏幕显示一致</p>
+            </div>
+            <div class="modal-x">×</div>
+          </div>
+          <div class="modal-body">
+            <div class="m-row">
+              <div class="k">会议室</div>
+              <div class="v">Room-A3-01 · 上海总部 3F<small>room-a3-01@honghe.com</small></div>
+            </div>
+            <div class="m-row">
+              <div class="k">日历状态</div>
+              <div class="v">M365 已连接<small>今日 3 场会议 · Asia/Shanghai</small></div>
+            </div>
+            <div class="m-dev">
+              <div class="lbl">待绑定设备</div>
+              <div class="code">SH-A3-01-01<span>device_sh_003</span></div>
+            </div>
+            <div class="m-hint">请与设备屏幕上显示的设备码核对一致后再确认。绑定后 5 分钟内该会议室调度生效；换绑走「解绑/换绑」。</div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn-ghost">取消</button>
+            <button class="btn-primary">确认绑定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S8 · 点餐提醒卡 ══════════ -->
+<section class="section" id="s8">
+  <div class="section-head">
+    <div class="no">SCREEN 08</div>
+    <h2>点餐提醒卡<br>SHOW_NOTICE · 会前 45 分钟</h2>
+    <p>设备端弹出的通知卡（场景 C）。会议页保持在底层（不切屏），卡片浮层只问一件事：要不要订餐。确认 / 忽略两个按钮，60 秒无操作自动收起，不打断会议。</p>
+    <div class="tags">
+      <span class="tag">F6 点餐提醒</span>
+      <span class="tag">场景 C</span>
+      <span class="tag ghost">深色浮层 · 16:9</span>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="device-screen">
+      <div class="meeting-page">
+        <div class="mp-top">
+          <div class="mp-room">Room-B2-05 · 上海总部 2F</div>
+          <div class="mp-clock">12:45 · 周二 10月27日</div>
+        </div>
+        <div class="mp-body">
+          <div>
+            <div class="mp-live">Meeting in Progress</div>
+            <div class="mp-title">产品评审会</div>
+            <div class="mp-meta">
+              <span><b>12:00 – 13:30</b></span>
+              <span>组织者 <b>张三</b></span>
+              <span><b>6</b> 位参会人</span>
+            </div>
+          </div>
+          <div class="mp-agenda">
+            <div class="label">今日议程</div>
+            <ul>
+              <li><span>01</span>Q3 复盘：指标与缺口</li>
+              <li><span>02</span>Q4 路线图对齐</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- 提醒卡浮层 -->
+      <div class="meal-veil">
+        <div class="meal-card">
+          <div class="meal-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 8c-2.2 0-4 2.2-4 5s1.8 5 4 5 4-2.2 4-5-1.8-5-4-5zm0 0V4m-3 0h6" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/><path d="M5 20h14" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h4>是否需要订餐？</h4>
+          <div class="detail">本次会议 <b>13:30</b> 结束，共 <b>6</b> 人。确认后为你生成推荐清单，跳转第三方平台下单——我们只推荐，不下单。</div>
+          <div class="meal-actions">
+            <button class="meal-btn primary">确认，看看推荐</button>
+            <button class="meal-btn ghost">忽略</button>
+          </div>
+          <div class="meal-foot">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#86868B" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>60 秒后自动收起 · 会后 1 小时内无其他安排才触发</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="device-foot"><span>Meal Reminder · SHOW_NOTICE</span><span>16:9 · 浮层不切屏</span></div>
+  </div>
+</section>
+
+<!-- ══════════ S9 · 日历源配置页 ══════════ -->
+<section class="section" id="s9">
+  <div class="section-head">
+    <div class="no">SCREEN 09</div>
+    <h2>日历源配置<br>M365 资源邮箱 · 只读接入</h2>
+    <p>管理员配置日历源的页面（F2 背景）。左侧是连接参数与权限边界（Calendars.Read + Mail.Send，只读不写），右侧是两档拉取策略的开关与周期——把"12 小时编排 / 7 天链接"的分层口径落在配置上。</p>
+    <div class="tags">
+      <span class="tag">F2 日历对接</span>
+      <span class="tag">F2.7 连接测试</span>
+      <span class="tag ghost">Web · 浅色</span>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="url">meetcast.admin / calendars</div>
+    </div>
+    <div class="main" style="background:var(--mist);">
+      <div class="main-head">
+        <div>
+          <h3>日历源</h3>
+          <p>试点 4 间会议室统一 M365 · Google 日历 P1 不启用</p>
+        </div>
+        <button class="btn-primary">连接测试</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-panel">
+          <div class="cal-panel-head">
+            <h4>M365 · 应用身份（app-only）</h4>
+            <span class="badge-prob"><i></i>已连接</span>
+          </div>
+          <div class="cal-body">
+            <div class="cal-row">
+              <div class="k">租户</div>
+              <div class="v"><code>honghe.onmicrosoft.com</code></div>
+            </div>
+            <div class="cal-row">
+              <div class="k">服务账号</div>
+              <div class="v"><code>svc-meetcast@honghe.com</code></div>
+            </div>
+            <div class="cal-row">
+              <div class="k">权限范围</div>
+              <div class="v"><code>Calendars.Read</code> + <code>Mail.Send</code></div>
+            </div>
+            <div class="cal-row">
+              <div class="k">权限边界</div>
+              <div class="v">日历只读 · 发链接邮件；不加 ReadWrite</div>
+            </div>
+            <div class="cal-row">
+              <div class="k">资源邮箱</div>
+              <div class="v">4 个已同步<small>room-a3-01 / b2-05 / c1-02 / 12f-01</small></div>
+            </div>
+            <div class="cal-row">
+              <div class="k">凭证状态</div>
+              <div class="v">有效 · 2027-01-04 到期<small>到期前 14 天告警管理员</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="cal-panel">
+          <div class="cal-panel-head">
+            <h4>拉取策略</h4>
+            <span class="badge-prob"><i></i>运行中</span>
+          </div>
+          <div class="cal-body">
+            <div class="pull-item">
+              <div class="pi">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="pt">
+                <div class="t">编排拉取 · 12 小时窗口</div>
+                <div class="s">每 5 分钟触发，驱动状态机与指令生成</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="pull-item">
+              <div class="pi">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M13.8 10.2a4.5 4.5 0 00-6.4 6.3l-3.1 3.2v-3.2H2.5m9-11.5h2.2V2m0 4.5h3.8M8.2 8.2l3.6 3.7" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="pt">
+                <div class="t">链接生成拉取 · 7 天窗口</div>
+                <div class="s">每 30 分钟触发，只为发专属素材上传链接</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="pull-item">
+              <div class="pi">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 9h17m-17 4.5h17M12 3v18" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="pt">
+                <div class="t">时区与夏令时</div>
+                <div class="s">UTC 存储 + IANA 渲染；美欧两套 DST 已启用</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="pull-item">
+              <div class="pi">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 3h.01M10.3 4.3L2.8 17.5A1.9 1.9 0 004.4 20.5h15.2a1.9 1.9 0 001.6-3L13.7 4.3a1.9 1.9 0 00-3.4 0z" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="pt">
+                <div class="t">异常告警</div>
+                <div class="s">API 超限 / 凭证过期 → 邮件通知管理员</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="pull-item">
+              <div class="pi">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M5 12l4-4m-4 4l4 4" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="pt">
+                <div class="t">Google 日历</div>
+                <div class="s">P1 不启用 · 待真实客户需求再开（需域级委派）</div>
+              </div>
+              <div class="switch off"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FEEDBACK ══════════ -->
+<footer class="feedback" id="final">
+  <div class="feedback-inner">
+    <h2>UI 设计定稿。</h2>
+    <p class="lead">V1.1 于 2026-10-27 定稿：黑白紫 · Apple 风格，共 9 块核心界面。后续开发按本稿实施，变更另起版本迭代，不回改本稿。</p>
+    <div class="fb-grid">
+      <div class="fb-item">
+        <div class="n">01 · 风格</div>
+        <p>调性锁定：近黑 #1D1D1F / 苹果灰 #F5F5F7 / 品牌紫 #7C3AED / 深紫 #4C1D95，Apple 式大标题、大留白、发丝线。</p>
+      </div>
+      <div class="fb-item">
+        <div class="n">02 · 大屏四态</div>
+        <p>会议页（深色）· 标牌页（浅色）· 待绑定屏（浅色）· 点餐浮卡，全部 16:9，为设备端视觉验收基准。</p>
+      </div>
+      <div class="fb-item">
+        <div class="n">03 · 后台与上传</div>
+        <p>设备总览、素材双轨（浅紫封面）、日历源配置、扫码确认弹层、免登录上传页定稿。</p>
+      </div>
+      <div class="fb-item">
+        <div class="n">04 · 变更规则</div>
+        <p>后续修改走 V1.2+ 版本迭代并留痕；开发以本 HTML 为唯一视觉基准，不另出平行稿。</p>
+      </div>
+    </div>
+    <div class="credit">
+      <span>Newline MeetCast · UI Design V1.1 FINAL · 2026-10-27</span>
+      <span>Brand: #7C3AED / #4C1D95 / #1D1D1F / #F5F5F7</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

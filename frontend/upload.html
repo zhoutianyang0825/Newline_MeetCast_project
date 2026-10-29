@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会议素材上传 · Newline MeetCast</title>
+<link rel="icon" href="assets/brand/logo_icon.svg">
+<link rel="stylesheet" href="assets/css/meetcast.css">
+</head>
+<body>
+<!--
+  S5 · 免登录上传页（F4.7 / 场景 E）
+  链路：服务端按日历 organizer 生成免登录链接（邮件单通道 Mail.Send）
+        → 定会者点开本页 → 直传本场会专属素材，无需账号、无行政审核
+  接口：GET/POST /api/upload/{token}（规范 §五，URL token 认证）
+  访问：upload.html?token=tk_8f3a…（token 绑定 meeting_id，会后失效）
+-->
+<div class="upload-wrap" id="up-wrap">
+  <div class="up-card" id="up-card" hidden>
+    <div class="up-eyebrow">
+      <div class="sq"><img src="assets/brand/logo_icon.svg" alt="MeetCast"></div>
+      Newline MeetCast
+    </div>
+    <h3>为「<span id="up-subject">产品评审会</span>」<br>上传会议素材</h3>
+    <div class="meta">
+      <b id="up-time">10月27日 10:00 – 11:00</b> · <span id="up-room">Room-A3-01（上海总部 3F）</span><br>
+      上传的素材仅在<b>本场会议</b>期间显示，其他会议与其他会议室不可见。
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="ic">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <p>拖拽文件到此处，或点击选择</p>
+      <small id="up-limits">支持 PNG / JPG / MP4 / MP3 · 单文件 ≤ 500MB · 截止会前 30 分钟</small>
+      <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.mp4,.mp3" hidden>
+    </div>
+
+    <div class="file-list" id="file-list"></div>
+
+    <div class="up-note">
+      <svg class="lock" viewBox="0 0 24 24" fill="none"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM8 11V7a4 4 0 118 0v4" stroke="#86868B" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>本链接绑定本场会议，会后自动失效。素材在会议结束后自动清理（设备本地同步删除），无需你手动删除。</span>
+    </div>
+  </div>
+
+  <!-- token 无效 / 过期 / 已截止 的错误卡（1004 / 2006 / 2010） -->
+  <div class="up-err-card" id="up-err" hidden>
+    <div class="ic">!</div>
+    <h3 id="up-err-title">链接已失效</h3>
+    <p id="up-err-text">本链接仅限本次会议使用。若需重新上传，请联系会议组织者获取新链接。</p>
+  </div>
+
+  <div class="loading" id="up-loading">正在校验链接…</div>
+
+  <div class="up-foot">© Newline MeetCast · 本页面无需登录，仅限本次会议使用</div>
+</div>
+
+<script src="assets/js/mock.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/upload.js"></script>
+</body>
+</html>

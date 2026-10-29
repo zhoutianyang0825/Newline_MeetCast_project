@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320">
+  <!--
+    Newline 会议室智能屏 · 横版组合 Logo（AI 生成占位源文件）
+    主题色：白 #FFFFFF + 紫 #7C3AED（紫色值待与 Signage Pro 核对后替换）
+    交付说明：正式投放前请将文字转曲（outline），避免部署端缺字体
+  -->
+  <!-- 图标（复用 logo_icon 设计，缩放至 200px） -->
+  <g transform="translate(24,60) scale(0.390625)">
+    <rect width="512" height="512" rx="112" fill="#7C3AED"/>
+    <rect x="112" y="128" width="288" height="192" rx="24" fill="#FFFFFF"/>
+    <rect x="236" y="320" width="40" height="36" fill="#FFFFFF"/>
+    <rect x="176" y="356" width="160" height="28" rx="14" fill="#FFFFFF"/>
+    <rect x="152" y="176" width="44" height="44" rx="12" fill="#7C3AED"/>
+    <rect x="216" y="184" width="136" height="16" rx="8" fill="#7C3AED"/>
+    <rect x="152" y="248" width="200" height="16" rx="8" fill="#7C3AED" opacity="0.65"/>
+    <rect x="152" y="284" width="140" height="16" rx="8" fill="#7C3AED" opacity="0.4"/>
+  </g>
+  <!-- 文字组 -->
+  <text x="280" y="160" font-family="PingFang SC, Helvetica Neue, Arial, sans-serif"
+        font-size="100" font-weight="700" fill="#4C1D95" letter-spacing="2">Newline</text>
+  <text x="284" y="236" font-family="PingFang SC, Helvetica Neue, Arial, sans-serif"
+        font-size="60" font-weight="600" fill="#7C3AED">会议室智能屏</text>
+  <text x="286" y="288" font-family="PingFang SC, Helvetica Neue, Arial, sans-serif"
+        font-size="30" font-weight="400" fill="#6B7280">Calendar-Driven Meeting Room Display</text>
+</svg>

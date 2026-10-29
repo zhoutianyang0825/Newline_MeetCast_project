@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>标牌页 · Newline MeetCast</title>
+<link rel="icon" href="../assets/brand/logo_icon.svg">
+<link rel="stylesheet" href="../assets/css/meetcast.css">
+</head>
+<body>
+<!--
+  S2 · 标牌页（设备大屏 16:9，会间空档默认场景）
+  设备链路：REPLAY_DEFAULT.payload.playlist → 本页；或 IDLE 常驻
+  演示数据：assets/js/mock.js 的 MOCK_DISPLAY.signage
+  query 覆盖：?room=xxx&tz=Asia/Shanghai
+-->
+<div class="display-root">
+  <div class="sign-page">
+    <div class="sg-top">
+      <div class="sg-logo">
+        <div class="sq"><img src="../assets/brand/logo_icon.svg" alt="MeetCast"></div>
+        <div class="word">
+          <strong id="sg-brand">Newline MeetCast</strong>
+          <small id="sg-room">Room-A3-01</small>
+        </div>
+      </div>
+      <div class="sg-clock">
+        <div class="t" id="sg-time">--:--</div>
+        <div class="d" id="sg-tz">Asia/Shanghai</div>
+      </div>
+    </div>
+
+    <div class="sg-hero">
+      <div class="sg-slogan">
+        <span id="sg-slogan-a">智能会议室，</span><em id="sg-slogan-em">从日程开始</em><span id="sg-slogan-b">。</span>
+      </div>
+      <div class="sg-desc" id="sg-desc">会议自动切换 · 会间展示企业形象 · 多时区自适应</div>
+      <div class="sg-banner">
+        <div class="ghost" id="sg-banner-ghost">Brand Film</div>
+        <div class="stripe"></div>
+      </div>
+    </div>
+
+    <div class="sg-foot">
+      <div class="sg-next">
+        <div class="lbl">Up Next</div>
+        <div class="val"><span id="sg-next">10:00 产品评审会</span> <span id="sg-next-sub">· 张三 · 6 人</span></div>
+      </div>
+      <div class="sg-status"><i></i><span id="sg-status-text">设备在线 · 日历已同步</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/mock.js"></script>
+<script src="../assets/js/display.js"></script>
+<script>initSignagePage();</script>
+</body>
+</html>

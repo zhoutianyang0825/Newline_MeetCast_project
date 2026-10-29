@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会议页 · Newline MeetCast</title>
+<link rel="icon" href="../assets/brand/logo_icon.svg">
+<link rel="stylesheet" href="../assets/css/meetcast.css">
+</head>
+<body>
+<!--
+  S1 · 会议页（设备大屏 16:9，会议进行中）
+  设备链路：PREPARE_MEETING.payload.content_url → 本页（WebView 渲染）
+  演示数据：assets/js/mock.js 的 MOCK_DISPLAY.meeting
+  query 覆盖：?subject=xxx&room=xxx&tz=Asia/Shanghai
+  S8 点餐浮卡：?notice=meal 触发（SHOW_NOTICE，浮层不切屏）
+-->
+<div class="display-root">
+  <div class="meeting-page">
+    <div class="mp-top">
+      <div class="mp-room" id="mp-room">Room-A3-01 · 上海总部 3F</div>
+      <div class="mp-clock" id="mp-clock">--:--</div>
+    </div>
+
+    <div class="mp-body">
+      <div>
+        <div class="mp-live">Meeting in Progress</div>
+        <div class="mp-title" id="mp-title">产品评审会</div>
+        <div class="mp-meta">
+          <span><b id="mp-time">10:00 – 11:00</b></span>
+          <span>组织者 <b id="mp-organizer">张三</b></span>
+          <span><b id="mp-count">6</b> 位参会人</span>
+        </div>
+        <div class="mp-people" id="mp-people"></div>
+      </div>
+
+      <div class="mp-agenda">
+        <div class="label">今日议程</div>
+        <ul id="mp-agenda-list"></ul>
+        <div class="asset">
+          <div class="asset-thumb"></div>
+          <div class="asset-name">
+            <span id="mp-asset-name">Q3-review-cover.png</span>
+            <small id="mp-asset-by">本场专属素材 · 张三上传</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-foot">
+      <div class="mp-next">下一场 <b id="mp-next">11:30 周会</b> · 本会议室</div>
+      <div class="mp-brand">
+        <div class="logo-sq"><img src="../assets/brand/logo_icon.svg" alt="MeetCast"></div>
+        MeetCast
+      </div>
+    </div>
+  </div>
+
+  <!-- S8 · 点餐提醒卡（SHOW_NOTICE 浮层，?notice=meal 触发） -->
+  <div class="meal-veil" id="meal-veil" hidden>
+    <div class="meal-card">
+      <div class="meal-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 8c-2.2 0-4 2.2-4 5s1.8 5 4 5 4-2.2 4-5-1.8-5-4-5zm0 0V4m-3 0h6" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/><path d="M5 20h14" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h4>是否需要订餐？</h4>
+      <div class="detail">本次会议 <b id="meal-end">13:30</b> 结束，共 <b id="meal-people">6</b> 人。确认后为你生成推荐清单，跳转第三方平台下单——我们只推荐，不下单。</div>
+      <div class="meal-actions">
+        <button class="meal-btn primary" id="meal-confirm">确认，看看推荐</button>
+        <button class="meal-btn ghost" id="meal-ignore">忽略</button>
+      </div>
+      <div class="meal-foot">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#86868B" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>60 秒后自动收起 · 会后 1 小时内无其他安排才触发</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/mock.js"></script>
+<script src="../assets/js/display.js"></script>
+<script>initMeetingPage();</script>
+</body>
+</html>
